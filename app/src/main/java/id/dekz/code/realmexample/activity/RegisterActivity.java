@@ -61,6 +61,8 @@ public class RegisterActivity extends AppCompatActivity {
                     user.setUserName(username.getText().toString());
                     user.setPassword(password.getText().toString());
                     realm.commitTransaction();
+                    Toast.makeText(getApplicationContext(), "register success", Toast.LENGTH_SHORT).show();
+                    RegisterActivity.this.finish();
                 }
             }
         });
