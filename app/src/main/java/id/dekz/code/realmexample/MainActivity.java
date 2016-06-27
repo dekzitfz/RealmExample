@@ -1,5 +1,7 @@
 package id.dekz.code.realmexample;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -28,12 +30,15 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.listView)ListView listView;
 
     private List<User> userList;
+    private Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        realm = Realm.getDefaultInstance();
 
         SessionManager sessionManager = new SessionManager(MainActivity.this);
         if(!sessionManager.isLoggedIn()){
@@ -73,14 +78,43 @@ public class MainActivity extends AppCompatActivity {
     private void getData(){
         userList = new ArrayList<>();
         userList.clear();
-        Realm realm = Realm.getDefaultInstance();
-        //RealmQuery<User> listUser = realm.where(User.class);
-        RealmResults<User> resultUser = realm.where(User.class).findAll();
+
+        final RealmResults<User> resultUser = realm.where(User.class).findAll();
         for(int i=0;i<resultUser.size();i++){
             userList.add(resultUser.get(i));
         }
 
         ListUserAdapter listUserAdapter = new ListUserAdapter(MainActivity.this,userList);
         listView.setAdapter(listUserAdapter);
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                deleteConfirm(position, resultUser);
+                return false;
+            }
+        });
+    }
+
+    private void deleteConfirm(final int pos, final RealmResults<User> result){
+        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
+                .setTitle("Delete Data")
+                .setMessage("Are You Sure Want to delete this data?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        realm.beginTransaction();
+                        result.deleteFromRealm(pos);
+                        realm.commitTransaction();
+                        onResume();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setCancelable(true)
+                .show();
     }
 }
