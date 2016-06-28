@@ -28,6 +28,7 @@ public class RegisterActivity extends AppCompatActivity {
     @BindView(R.id.tvList)TextView listLog;
 
     private Realm realm;
+    private int idUser;
 
     @Override
     protected void onCreate(Bundle bundle){
@@ -55,16 +56,34 @@ public class RegisterActivity extends AppCompatActivity {
                         password.getText().length()==0){
                     Toast.makeText(RegisterActivity.this,"fill all fields!",Toast.LENGTH_SHORT).show();
                 }else{
-                    realm.beginTransaction();
-                    User user = realm.createObject(User.class);
-                    user.setFullName(fullname.getText().toString());
-                    user.setUserName(username.getText().toString());
-                    user.setPassword(password.getText().toString());
-                    realm.commitTransaction();
-                    Toast.makeText(getApplicationContext(), "register success", Toast.LENGTH_SHORT).show();
-                    RegisterActivity.this.finish();
+                    RealmResults<User> resultUser = realm.where(User.class).findAll();
+                    //check if any user already registered
+                    if(resultUser.size()>0){
+                        //found users, get last userID
+                        User exist = resultUser.get(resultUser.size()-1);
+                        idUser = exist.getId()+1;
+                        Log.d("userID",String.valueOf(idUser));
+                        registerProccess(idUser);
+                    }else{
+                        //empty users
+                        idUser = 1;
+                        Log.d("userID",String.valueOf(idUser));
+                        registerProccess(idUser);
+                    }
                 }
             }
         });
+    }
+
+    private void registerProccess(int id){
+        realm.beginTransaction();
+        User user = realm.createObject(User.class);
+        user.setId(id);
+        user.setFullName(fullname.getText().toString());
+        user.setUserName(username.getText().toString());
+        user.setPassword(password.getText().toString());
+        realm.commitTransaction();
+        Toast.makeText(getApplicationContext(), "register success", Toast.LENGTH_SHORT).show();
+        RegisterActivity.this.finish();
     }
 }

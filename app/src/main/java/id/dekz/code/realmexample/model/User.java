@@ -5,9 +5,20 @@ import io.realm.RealmObject;
 
 public class User extends RealmObject {
 
+    private int id;
     private String fullName;
     private String userName;
     private String password;
+
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
 
     public String getFullName() {
         return fullName;

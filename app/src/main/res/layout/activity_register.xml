@@ -43,6 +43,7 @@
             android:text="log list"
             android:id="@+id/tvList"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="20dp" />
+            android:layout_marginTop="20dp"
+            android:visibility="gone" />
     </LinearLayout>
 </RelativeLayout>

@@ -5,10 +5,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -86,11 +88,19 @@ public class MainActivity extends AppCompatActivity {
 
         ListUserAdapter listUserAdapter = new ListUserAdapter(MainActivity.this,userList);
         listView.setAdapter(listUserAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                updateDialog(userList.get(position));
+            }
+        });
+
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 deleteConfirm(position, resultUser);
-                return false;
+                return true;
             }
         });
     }
@@ -116,5 +126,65 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setCancelable(true)
                 .show();
+    }
+
+    private void updateDialog(final User user){
+        LayoutInflater li = LayoutInflater.from(MainActivity.this);
+        View promptsView = li.inflate(R.layout.dialog_update, null, false);
+        AlertDialog.Builder updateBuilder = new AlertDialog.Builder(MainActivity.this);
+        updateBuilder.setView(promptsView);
+
+        final EditText fullname = (EditText) promptsView.findViewById(R.id.tvUpdateFullName);
+        fullname.setText(user.getFullName());
+        final EditText username = (EditText) promptsView.findViewById(R.id.tvUpdateUsername);
+        username.setText(user.getUserName());
+
+        updateBuilder.setCancelable(true)
+                .setPositiveButton("Update", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(fullname.getText().length()==0 ||
+                                username.getText().length()==0){
+                            Toast.makeText(MainActivity.this, "please fill all fields!", Toast.LENGTH_SHORT).show();
+                        }else{
+                            if(isUsernameExist(username.getText().toString())){
+                                Toast.makeText(MainActivity.this, "User Name alredy Used!", Toast.LENGTH_SHORT).show();
+                            }else{
+                                updateData(fullname.getText().toString(),username.getText().toString(),user.getId());
+                            }
+                        }
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        AlertDialog updateDialog = updateBuilder.create();
+        updateDialog.show();
+    }
+
+    private boolean isUsernameExist(String username){
+        RealmResults listUsername = realm
+                .where(User.class)
+                .equalTo("userName",username).findAll();
+        if(listUsername.size()>1){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    private void updateData(String fullname, String username, int id){
+        User user = realm.where(User.class)
+                .equalTo("id", id)
+                .findFirst();
+        realm.beginTransaction();
+        user.setUserName(username);
+        user.setFullName(fullname);
+        realm.commitTransaction();
+        onResume();
     }
 }

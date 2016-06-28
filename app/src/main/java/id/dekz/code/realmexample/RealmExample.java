@@ -12,6 +12,7 @@ public class RealmExample extends Application {
     public void onCreate(){
         super.onCreate();
         RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(this)
+                .deleteRealmIfMigrationNeeded()
                 .build();
         Realm.setDefaultConfiguration(realmConfiguration);
     }
