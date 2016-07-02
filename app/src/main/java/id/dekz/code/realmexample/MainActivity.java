@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,6 +15,8 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +34,8 @@ import io.realm.RealmResults;
 public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.listView)ListView listView;
+    @BindView(R.id.toolbarMain)Toolbar toolbar;
+    @BindView(R.id.search_view)MaterialSearchView materialSearchView;
 
     private List<User> userList;
     private Realm realm;
@@ -40,7 +46,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        setSupportActionBar(toolbar);
+
         realm = Realm.getDefaultInstance();
+        setUpSearch();
 
         SessionManager sessionManager = new SessionManager(MainActivity.this);
         if(!sessionManager.isLoggedIn()){
@@ -60,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+        MenuItem item = menu.findItem(R.id.action_search);
+        materialSearchView.setMenuItem(item);
+
         return true;
     }
 
@@ -73,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
             login.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(login);
             MainActivity.this.finish();
+        }else if(id == R.id.action_search){
+            //setUpSearch();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -100,6 +114,33 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 deleteConfirm(position, resultUser);
+                return true;
+            }
+        });
+    }
+
+    private void getSearchResult(final RealmResults<User> list){
+        userList = new ArrayList<>();
+        userList.clear();
+
+        for(int i=0;i<list.size();i++){
+            userList.add(list.get(i));
+        }
+
+        ListUserAdapter listUserAdapter = new ListUserAdapter(MainActivity.this,userList);
+        listView.setAdapter(listUserAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                updateDialog(userList.get(position));
+            }
+        });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                deleteConfirm(position, list);
                 return true;
             }
         });
@@ -140,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
         username.setText(user.getUserName());
 
         updateBuilder.setCancelable(true)
+                .setTitle("Update User Data")
                 .setPositiveButton("Update", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -187,4 +229,50 @@ public class MainActivity extends AppCompatActivity {
         realm.commitTransaction();
         onResume();
     }
+
+    private void setUpSearch(){
+        materialSearchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.d("onQueryTextSubmit",query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Log.d("onQueryTextChange",newText);
+                //try to search in username
+                RealmResults searchUsername = realm
+                        .where(User.class)
+                        .contains("userName",newText)
+                        .findAll();
+                Log.d("searchResult",searchUsername.toString());
+                if(searchUsername.size()>0){
+                    getSearchResult(searchUsername);
+                }else{
+                    RealmResults searchFullName = realm
+                            .where(User.class)
+                            .contains("fullName",newText)
+                            .findAll();
+                    getSearchResult(searchFullName);
+                }
+
+                return false;
+            }
+        });
+
+        materialSearchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
+            @Override
+            public void onSearchViewShown() {
+                //do something
+            }
+
+            @Override
+            public void onSearchViewClosed() {
+                //do something
+                onResume();
+            }
+        });
+    }
+
 }
