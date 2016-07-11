@@ -14,4 +14,4 @@ Realm is fast, secure, free, easy to learn and integrate. [More info here](https
 
 
 #### Preview
-<iframe src="//giphy.com/embed/iWuHgrV1CJAk" width="400" height="700" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+![preview](http://i.giphy.com/iWuHgrV1CJAk.gif)
