@@ -13,5 +13,4 @@ Realm is fast, secure, free, easy to learn and integrate. [More info here](https
 >- **Search** - search user in main activity.
 
 
-#### Preview
-![preview](http://i.giphy.com/iWuHgrV1CJAk.gif)
+
