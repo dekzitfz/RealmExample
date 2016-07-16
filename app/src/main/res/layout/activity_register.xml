@@ -65,8 +65,8 @@
                 android:layout_height="wrap_content"
                 android:text="Register"
                 android:id="@+id/btnRegister"
-                android:background="#1A237E"
-                android:textColor="@color/colorAccent"
+                android:background="@color/colorAccent"
+                android:textColor="@color/textColorPrimary"
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:layout_marginTop="10dp" />
