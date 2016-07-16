@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3f51b5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <!--<color name="colorPrimary">#3f51b5</color>
+    <color name="colorPrimaryDark">#303F9F</color>-->
+    <color name="colorPrimary">#F06292</color>
+    <color name="colorPrimaryDark">#E91E63</color>
+    <color name="colorAccent">#ffffff</color>
     <color name="textColorPrimary">#FFFFFF</color>
     <color name="windowBackground">#FFFFFF</color>
     <color name="navigationBarColor">#000000</color>
+    <color name="realmBackground">#F06292</color>
 </resources>

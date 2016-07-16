@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -35,6 +36,9 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(bundle);
         setContentView(R.layout.activity_register);
         ButterKnife.bind(this);
+
+        this.getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         realm = Realm.getDefaultInstance();
 
